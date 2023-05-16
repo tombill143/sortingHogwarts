@@ -7,6 +7,66 @@ let currentHouse = "all";
 
 console.log("Loading JSON data...");
 
+const aboutButton = document.getElementById("about-button");
+const aboutContainer = document.getElementById("about-container");
+
+aboutButton.addEventListener("click", () => {
+  if (aboutContainer.firstChild) {
+    // If the container already has content, remove it to hide the table
+    aboutContainer.innerHTML = "";
+  } else {
+    // If the container is empty, generate and display the table
+    const gryffindorCount = gryffindor.length;
+    const slytherinCount = slytherin.length;
+    const hufflepuffCount = hufflepuff.length;
+    const ravenclawCount = ravenclaw.length;
+    const totalStudents = students.length;
+    const expelledCount = students.filter((student) => student.expelled).length;
+    const displayedCount =
+      document.querySelectorAll("#students-body tr").length;
+
+    // Create the table element
+    const table = document.createElement("table");
+    const tbody = document.createElement("tbody");
+
+    // Create rows for each information
+    const row1 = createTableRow("Gryffindor students:", gryffindorCount);
+    const row2 = createTableRow("Slytherin students:", slytherinCount);
+    const row3 = createTableRow("Hufflepuff students:", hufflepuffCount);
+    const row4 = createTableRow("Ravenclaw students:", ravenclawCount);
+    const row5 = createTableRow("Total students:", totalStudents);
+    const row6 = createTableRow("Expelled students:", expelledCount);
+    const row7 = createTableRow("Displayed students:", displayedCount);
+
+    // Append rows to table body
+    tbody.appendChild(row1);
+    tbody.appendChild(row2);
+    tbody.appendChild(row3);
+    tbody.appendChild(row4);
+    tbody.appendChild(row5);
+    tbody.appendChild(row6);
+    tbody.appendChild(row7);
+
+    // Append table body to table
+    table.appendChild(tbody);
+
+    // Append table to about container
+    aboutContainer.appendChild(table);
+  }
+});
+
+// Function to create a table row with two cells
+function createTableRow(label, value) {
+  const row = document.createElement("tr");
+  const labelCell = document.createElement("td");
+  const valueCell = document.createElement("td");
+  labelCell.textContent = label;
+  valueCell.textContent = value;
+  row.appendChild(labelCell);
+  row.appendChild(valueCell);
+  return row;
+}
+
 fetch("hogwarts.json")
   .then((response) => response.json())
   .then((data) => {

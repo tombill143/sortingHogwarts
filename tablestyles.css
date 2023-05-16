@@ -4,6 +4,12 @@ body {
   padding: 0;
 }
 
+#about-container {
+  display: flex;
+  width: 20%;
+  margin-left: 40%;
+}
+
 #about-button {
   padding: 8px 16px;
   margin-left: 2em;
