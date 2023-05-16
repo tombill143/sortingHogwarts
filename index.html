@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sort Users</title>
+  <link rel="stylesheet" href="tablestyles.css">
+</head>
+<body>
+    <h1>Sort Hogwarts</h1>
+    <div class="filters-container">
+      <label for="option">Sort by:</label>
+      <select id="option">
+        <option class="option" data-action="option" value="all">All Hogwarts Students on File</option>
+        <option class="option" data-action="option" value="gryffindor">Gryffindor Students</option>
+        <option class="option" data-action="option" value="slytherin">Slytherin Students</option>
+        <option class="option" data-action="option" value="hufflepuff">Hufflepuff Students</option>
+        <option class="option" data-action="option" value="ravenclaw">Ravenclaw Students</option>
+      </select>
+      <label for="search">Search by Name:</label>
+      <input type="text" id="search" placeholder="Enter student name...">
+    </div>
+  
+    <table id="student-table">
+      <thead>
+        <tr>
+          <th data-field="winner">Inquisitorial Squad</th>
+          <th data-field="star">Prefects</th>
+          <th data-action="sort" data-sort-direction="asc" data-sort="fullname">Name</th>
+          <th data-action="sort" data-sort-direction="asc" data-sort="gender">Gender</th>
+          <th data-action="sort" data-sort-direction="asc" data-sort="house">House</th>
+        </tr>
+      </thead>
+      <tbody id="students-body">
+      </tbody>
+    </table>
+    <script src="./dropdown.js"></script>
+  </body>
+</html>

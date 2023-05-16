@@ -1,0 +1,79 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.filters-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filters-container label {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.filters-container select,
+.filters-container input[type="text"] {
+  font-size: 18px;
+  padding: 5px;
+  border: 1px solid #888;
+  border-radius: 5px;
+}
+
+.filters-container select {
+  background-color: #fff;
+}
+
+.filters-container input[type="text"] {
+  background-color: #f9f9f9;
+  width: 250px;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 20px auto;
+  width: 90%;
+}
+
+thead {
+  background-color: #ddd;
+}
+
+thead th {
+  border: 1px solid #888;
+
+  padding: 10px;
+}
+
+tbody td {
+  border: 1px solid #888;
+  padding: 10px;
+  cursor: pointer;
+}
+
+#option {
+  margin-right: 1em;
+}
+
+/* ****** STAR ****** */
+
+[data-field="star"] {
+  text-align: center;
+  cursor: pointer;
+  min-width: 2em;
+}
+
+/****** WINNER ******/
+[data-field="winner"][data-winner="false"] {
+  filter: grayscale(100%);
+  cursor: pointer;
+}
