@@ -22,8 +22,7 @@ aboutButton.addEventListener("click", () => {
     const ravenclawCount = ravenclaw.length;
     const totalStudents = students.length;
     const expelledCount = students.filter((student) => student.expelled).length;
-    const displayedCount =
-      document.querySelectorAll("#students-body tr").length;
+    const displayedCount = totalStudents - expelledCount;
 
     // Create the table element
     const table = document.createElement("table");
@@ -54,6 +53,23 @@ aboutButton.addEventListener("click", () => {
     aboutContainer.appendChild(table);
   }
 });
+
+function updateDisplayedCount() {
+  const displayedCount =
+    document.querySelectorAll("#students-body tr").length - 1;
+  // Update the displayed count in the UI
+  // For example:
+  document.getElementById("displayed-count").textContent = displayedCount;
+}
+
+// Call the function whenever a student is expelled
+function expelStudent() {
+  // Logic to expel the student
+  // ...
+
+  // Update the displayed count
+  updateDisplayedCount();
+}
 
 // Function to create a table row with two cells
 function createTableRow(label, value) {
