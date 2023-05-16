@@ -44,21 +44,33 @@ function displayStudents() {
   tableBody.innerHTML = "";
 
   studentList.forEach((student) => {
+    // Assign a random blood status value between 1 and 3
+    student.bloodStatus = getBloodStatusLabel();
+
     let row = document.createElement("tr");
     row.innerHTML = `
-        <td data-field="squad" class="cup-icon ${
-          student.squad ? "winner" : ""
-        }">
-          ${student.squad ? "🏆 Now on the squad" : "🏆"}
-        </td>
-        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-          ${student.star ? "⭐" : "☆"}
-        </td>
-        <td>${student.fullname}</td>
-        <td>${student.gender}</td>
-        <td>${student.house}</td>
-      `;
+          <td data-field="squad" class="cup-icon ${
+            student.squad ? "winner" : ""
+          }">
+            ${student.squad ? "🏆 Now on the squad" : "🏆"}
+          </td>
+          <td data-field="star" class="star-icon ${
+            student.star ? "active" : ""
+          }">
+            ${student.star ? "⭐" : "☆"}
+          </td>
+          <td>${student.fullname}</td>
+          <td>${student.gender}</td>
+          <td>${student.house}</td>
+          <td>${student.bloodStatus}</td>
+          <td>${student.expelled}</td>
+        `;
     tableBody.appendChild(row);
+
+    // Add click event listener to row
+    row.addEventListener("click", () => {
+      showStudentPopup(student);
+    });
 
     // Add click event listener to cup icon
     const cupIcon = row.querySelector(".cup-icon");
@@ -80,6 +92,20 @@ function displayStudents() {
       star.textContent = student.star ? "⭐" : "☆";
     });
   });
+}
+
+function getBloodStatusLabel() {
+  const randomNumber = Math.floor(Math.random() * 3) + 1;
+  switch (randomNumber) {
+    case 1:
+      return "Pure Blood";
+    case 2:
+      return "Half Blood";
+    case 3:
+      return "Muggle";
+    default:
+      return "Unknown";
+  }
 }
 
 function sortStudents(property) {
@@ -162,6 +188,8 @@ function displayFilteredStudents(filteredStudents) {
           <td>${student.fullname}</td>
           <td>${student.gender}</td>
           <td>${student.house}</td>
+          <td>${student.bloodStatus}</td>
+          <td>${student.expelled}</td>
         `;
     tableBody.appendChild(row);
   });
@@ -189,4 +217,118 @@ function displayFilteredStudents(filteredStudents) {
       cup.textContent = student.squad ? "🏆 Now on the squad" : "🏆";
     });
   });
+  function displayStudents() {
+    let studentList = [];
+
+    if (currentHouse === "all") {
+      studentList = students;
+    } else {
+      switch (currentHouse) {
+        case "gryffindor":
+          studentList = gryffindor;
+          break;
+        case "slytherin":
+          studentList = slytherin;
+          break;
+        case "hufflepuff":
+          studentList = hufflepuff;
+          break;
+        case "ravenclaw":
+          studentList = ravenclaw;
+          break;
+      }
+    }
+
+    let tableBody = document.getElementById("students-body");
+    tableBody.innerHTML = "";
+
+    studentList.forEach((student) => {
+      let row = document.createElement("tr");
+      row.innerHTML = `
+          <td data-field="squad" class="cup-icon ${
+            student.squad ? "winner" : ""
+          }">
+            ${student.squad ? "🏆 Now on the squad" : "🏆"}
+          </td>
+          <td data-field="star" class="star-icon ${
+            student.star ? "active" : ""
+          }">
+            ${student.star ? "⭐" : "☆"}
+          </td>
+          <td>${student.fullname}</td>
+          <td>${student.gender}</td>
+          <td>${student.house}</td>
+          <td>${student.bloodStatus}</td>
+        `;
+      tableBody.appendChild(row);
+
+      // Add click event listener to row
+      row.addEventListener("click", () => {
+        showStudentPopup(student);
+      });
+
+      // Add click event listener to cup icon
+      const cupIcon = row.querySelector(".cup-icon");
+      cupIcon.addEventListener("click", () => {
+        student.squad = !student.squad;
+        cupIcon.classList.toggle("winner");
+        cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
+      });
+    });
+
+    // Add click event listeners to star icons
+    let starIcons = document.querySelectorAll(".star-icon");
+    starIcons.forEach((star) => {
+      star.addEventListener("click", () => {
+        let parentRow = star.closest("tr");
+        let index = Array.from(parentRow.parentNode.children).indexOf(
+          parentRow
+        );
+        let student = studentList[index];
+        student.star = !student.star;
+        star.textContent = student.star ? "⭐" : "☆";
+      });
+    });
+  }
+
+  /*   function showStudentPopup(student) {
+    // Get the popup element
+    const popup = document.getElementById("student-popup");
+
+    // Get the elements for displaying the student details
+    const firstNameElement = popup.querySelector(".first-name");
+    const middleNameElement = popup.querySelector(".middle-name");
+    const nickNameElement = popup.querySelector(".nick-name");
+    const lastNameElement = popup.querySelector(".last-name");
+    const photoElement = popup.querySelector(".photo");
+    const crestElement = popup.querySelector(".crest");
+    const bloodStatusElement = popup.querySelector(".blood-status");
+    const prefectElement = popup.querySelector(".prefect");
+    const expelledElement = popup.querySelector(".expelled");
+    const inquisitorialElement = popup.querySelector(".inquisitorial");
+
+    // Set the values of the student details elements
+    firstNameElement.textContent = student.firstName;
+    middleNameElement.textContent = student.middleName
+      ? student.middleName
+      : "";
+    nickNameElement.textContent = student.nickName
+      ? `(${student.nickName})`
+      : "";
+    lastNameElement.textContent = student.lastName;
+    photoElement.src = student.photo
+      ? student.photo
+      : "images/default-photo.png";
+    crestElement.src = student.crest
+      ? student.crest
+      : "images/default-crest.png";
+    crestElement.style.backgroundColor = student.houseColor;
+    bloodStatusElement.textContent = student.bloodStatus;
+    prefectElement.textContent = student.prefect ? "Yes" : "No";
+    expelledElement.textContent = student.expelled ? "Yes" : "No";
+    inquisitorialElement.textContent = student.inquisitorial ? "Yes" : "No";
+
+    // Show the popup
+    popup.classList.add("show");
+  } */
 }
