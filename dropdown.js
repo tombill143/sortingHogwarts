@@ -49,22 +49,25 @@ function displayStudents() {
 
     let row = document.createElement("tr");
     row.innerHTML = `
-          <td data-field="squad" class="cup-icon ${
-            student.squad ? "winner" : ""
-          }">
-            ${student.squad ? "🏆 Now on the squad" : "🏆"}
-          </td>
-          <td data-field="star" class="star-icon ${
-            student.star ? "active" : ""
-          }">
-            ${student.star ? "⭐" : "☆"}
-          </td>
-          <td>${student.fullname}</td>
-          <td>${student.gender}</td>
-          <td>${student.house}</td>
-          <td>${student.bloodStatus}</td>
-          <td>${student.expelled}</td>
-        `;
+        <td data-field="squad" class="cup-icon ${
+          student.squad ? "winner" : ""
+        }">
+          ${student.squad ? "🏆 Now on the squad" : "🏆"}
+        </td>
+        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+          ${student.star ? "⭐" : "☆"}
+        </td>
+        <td>${student.fullname}</td>
+        <td>${student.gender}</td>
+        <td>${student.house}</td>
+        <td>${student.bloodStatus}</td>
+        <td>
+        <button class="expel-button">${
+          student.expelled ? "Reinstate" : "Expel"
+        }</button>
+        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
+      </td>
+      `;
     tableBody.appendChild(row);
 
     // Add click event listener to row
@@ -78,6 +81,20 @@ function displayStudents() {
       student.squad = !student.squad;
       cupIcon.classList.toggle("winner");
       cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
+    });
+
+    // Add click event listener to expel/reinstate button
+    const expelButton = row.querySelector(".expel-button");
+    const expelledText = row.querySelector(".expelled-text");
+    expelButton.addEventListener("click", () => {
+      student.expelled = !student.expelled;
+      if (student.expelled) {
+        expelledText.textContent = "Expelled";
+        expelButton.textContent = "Reinstate";
+      } else {
+        expelledText.textContent = "";
+        expelButton.textContent = "Expel";
+      }
     });
   });
 
@@ -179,44 +196,55 @@ function displayFilteredStudents(filteredStudents) {
 
     let row = document.createElement("tr");
     row.innerHTML = `
-          <td data-field="squad" class="cup-icon">${
-            student.squad ? "🏆 Now on the squad" : "🏆"
-          }</td>
-          <td data-field="star" class="star-icon">${
-            student.star ? "⭐" : "☆"
-          }</td>
-          <td>${student.fullname}</td>
-          <td>${student.gender}</td>
-          <td>${student.house}</td>
-          <td>${student.bloodStatus}</td>
-          <td>${student.expelled}</td>
-        `;
+      <td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
+        ${student.squad ? "🏆 Now on the squad" : "🏆"}
+      </td>
+      <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+        ${student.star ? "⭐" : "☆"}
+      </td>
+      <td>${student.fullname}</td>
+      <td>${student.gender}</td>
+      <td>${student.house}</td>
+      <td>${student.bloodStatus}</td>
+      <td>
+        <button class="expel-button">${
+          student.expelled ? "Reinstate" : "Expel"
+        }</button>
+        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
+      </td>
+    `;
     tableBody.appendChild(row);
-  });
 
-  // Add click event listeners to star icons
-  let starIcons = document.querySelectorAll(".star-icon");
-  starIcons.forEach((star) => {
-    star.addEventListener("click", () => {
-      let parentRow = star.closest("tr");
-      let index = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-      let student = filteredStudents[index];
-      student.star = !student.star;
-      star.textContent = student.star ? "⭐" : "☆";
-    });
-  });
-
-  // Add click event listeners to cup icons
-  let cupIcons = document.querySelectorAll(".cup-icon");
-  cupIcons.forEach((cup) => {
-    cup.addEventListener("click", () => {
-      let parentRow = cup.closest("tr");
-      let index = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-      let student = filteredStudents[index];
+    // Add click event listener to cup icon
+    const cupIcon = row.querySelector(".cup-icon");
+    cupIcon.addEventListener("click", () => {
       student.squad = !student.squad;
-      cup.textContent = student.squad ? "🏆 Now on the squad" : "🏆";
+      cupIcon.classList.toggle("winner");
+      cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
+    });
+
+    // Add click event listener to expel/reinstate button
+    const expelButton = row.querySelector(".expel-button");
+    const expelledText = row.querySelector(".expelled-text");
+    expelButton.addEventListener("click", () => {
+      student.expelled = !student.expelled;
+      if (student.expelled) {
+        expelledText.textContent = "Expelled";
+        expelButton.textContent = "Reinstate";
+      } else {
+        expelledText.textContent = "";
+        expelButton.textContent = "Expel";
+      }
+    });
+
+    // Add click event listener to star icon
+    const starIcon = row.querySelector(".star-icon");
+    starIcon.addEventListener("click", () => {
+      student.star = !student.star;
+      starIcon.textContent = student.star ? "⭐" : "☆";
     });
   });
+
   function displayStudents() {
     let studentList = [];
 
@@ -290,45 +318,4 @@ function displayFilteredStudents(filteredStudents) {
       });
     });
   }
-
-  /*   function showStudentPopup(student) {
-    // Get the popup element
-    const popup = document.getElementById("student-popup");
-
-    // Get the elements for displaying the student details
-    const firstNameElement = popup.querySelector(".first-name");
-    const middleNameElement = popup.querySelector(".middle-name");
-    const nickNameElement = popup.querySelector(".nick-name");
-    const lastNameElement = popup.querySelector(".last-name");
-    const photoElement = popup.querySelector(".photo");
-    const crestElement = popup.querySelector(".crest");
-    const bloodStatusElement = popup.querySelector(".blood-status");
-    const prefectElement = popup.querySelector(".prefect");
-    const expelledElement = popup.querySelector(".expelled");
-    const inquisitorialElement = popup.querySelector(".inquisitorial");
-
-    // Set the values of the student details elements
-    firstNameElement.textContent = student.firstName;
-    middleNameElement.textContent = student.middleName
-      ? student.middleName
-      : "";
-    nickNameElement.textContent = student.nickName
-      ? `(${student.nickName})`
-      : "";
-    lastNameElement.textContent = student.lastName;
-    photoElement.src = student.photo
-      ? student.photo
-      : "images/default-photo.png";
-    crestElement.src = student.crest
-      ? student.crest
-      : "images/default-crest.png";
-    crestElement.style.backgroundColor = student.houseColor;
-    bloodStatusElement.textContent = student.bloodStatus;
-    prefectElement.textContent = student.prefect ? "Yes" : "No";
-    expelledElement.textContent = student.expelled ? "Yes" : "No";
-    inquisitorialElement.textContent = student.inquisitorial ? "Yes" : "No";
-
-    // Show the popup
-    popup.classList.add("show");
-  } */
 }
