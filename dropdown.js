@@ -10,6 +10,11 @@ console.log("Loading JSON data...");
 const aboutButton = document.getElementById("about-button");
 const aboutContainer = document.getElementById("about-container");
 
+// Add event listener to the "Expelled Students" button
+const expelledButton = document.getElementById("expelled-button");
+const expelledContainer = document.getElementById("expelled-table");
+let isExpelledVisible = false;
+
 aboutButton.addEventListener("click", () => {
   if (aboutContainer.firstChild) {
     // If the container already has content, remove it to hide the table
@@ -54,12 +59,35 @@ aboutButton.addEventListener("click", () => {
   }
 });
 
+expelledButton.addEventListener("click", () => {
+  if (!isExpelledVisible) {
+    // Show the expelled container
+    expelledContainer.style.display = "block";
+    // Generate and display the expelled student data
+    displayExpelledStudents(); // Define this function to generate and display the expelled student data
+    isExpelledVisible = true;
+    expelledButton.textContent = "Hide Expelled Students"; // Update button text
+  } else {
+    // Hide the expelled container
+    expelledContainer.style.display = "none";
+    // Clear the expelled student data
+    clearExpelledStudents(); // Define this function to clear the expelled student data
+    isExpelledVisible = false;
+    expelledButton.textContent = "Expelled Students"; // Update button text
+  }
+});
+
 function updateDisplayedCount() {
-  const displayedCount =
-    document.querySelectorAll("#students-body tr").length - 1;
-  // Update the displayed count in the UI
-  // For example:
-  document.getElementById("displayed-count").textContent = displayedCount;
+  const activeCount = document.getElementById("active-count");
+  const expelledCount = document.getElementById("expelled-count");
+
+  if (activeCount && expelledCount) {
+    const activeStudentsCount = activeStudents.length;
+    const expelledStudentsCount = expelledStudents.length;
+
+    activeCount.textContent = activeStudentsCount.toString();
+    expelledCount.textContent = expelledStudentsCount.toString();
+  }
 }
 
 students.forEach((student) => {
@@ -103,9 +131,6 @@ let activeStudents = [];
 let expelledStudents = [];
 
 function displayStudents() {
-  let activeStudents = [];
-  let expelledStudents = [];
-
   if (currentHouse === "all") {
     activeStudents = students.filter((student) => !student.expelled);
     expelledStudents = students.filter((student) => student.expelled);
@@ -121,33 +146,33 @@ function displayStudents() {
   activeTableBody.innerHTML = "";
   expelledTableBody.innerHTML = "";
 
-  activeStudents.forEach((student) => {
+  let filteredActiveStudents = activeStudents.filter(
+    (student) => !expelledStudents.includes(student)
+  );
+
+  filteredActiveStudents.forEach((student) => {
     // Assign a random blood status value between 1 and 3
     student.bloodStatus = getBloodStatusLabel();
 
     let row = document.createElement("tr");
     row.innerHTML = `
-        <td data-field="squad" class="cup-icon ${
-          student.squad ? "winner" : ""
-        }">
-          ${student.squad ? "🏆 Now on the squad" : "🏆"}
-        </td>
-        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-          ${student.star ? "⭐" : "☆"}
-        </td>
-        <td>${student.fullname}</td>
-        <td>${student.gender}</td>
-        <td>${student.house}</td>
-        <td>${student.bloodStatus}</td>
-        <td>
-          <button class="expel-button">${
-            student.expelled ? "Reinstate" : "Expel"
-          }</button>
-          <span class="expelled-text">${
-            student.expelled ? "Expelled" : ""
-          }</span>
-        </td>
-      `;
+      <td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
+        ${student.squad ? "🏆 Now on the squad" : "🏆"}
+      </td>
+      <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+        ${student.star ? "⭐" : "☆"}
+      </td>
+      <td>${student.fullname}</td>
+      <td>${student.gender}</td>
+      <td>${student.house}</td>
+      <td>${student.bloodStatus}</td>
+      <td>
+        <button class="expel-button">${
+          student.expelled ? "Reinstate" : "Expel"
+        }</button>
+        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
+      </td>
+    `;
     activeTableBody.appendChild(row);
 
     // Add click event listener to row
@@ -172,27 +197,28 @@ function displayStudents() {
         expelledText.textContent = "Expelled";
         expelButton.textContent = "Reinstate";
         expelledStudents.push(student);
-        activeStudents = activeStudents.filter((s) => s !== student);
+        activeTableBody.removeChild(row);
+        expelledTableBody.appendChild(row);
       } else {
         expelledText.textContent = "";
         expelButton.textContent = "Expel";
-        activeStudents.push(student);
         expelledStudents = expelledStudents.filter((s) => s !== student);
+        expelledTableBody.removeChild(row);
+        activeTableBody.appendChild(row);
       }
-      displayStudents();
       updateDisplayedCount();
-      toggleExpelledTableVisibility(); // Add this line
+      toggleExpelledTableVisibility();
     });
   });
 
   expelledStudents.forEach((student) => {
     let row = document.createElement("tr");
     row.innerHTML = `
-        <td>${student.fullname}</td>
-        <td>${student.gender}</td>
-        <td>${student.house}</td>
-        <td>${student.bloodStatus}</td>
-      `;
+      <td>${student.fullname}</td>
+      <td>${student.gender}</td>
+      <td>${student.house}</td>
+      <td>${student.bloodStatus}</td>
+    `;
     expelledTableBody.appendChild(row);
   });
 
@@ -202,7 +228,7 @@ function displayStudents() {
     star.addEventListener("click", () => {
       let parentRow = star.closest("tr");
       let index = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-      let student = activeStudents[index];
+      let student = filteredActiveStudents[index];
       student.star = !student.star;
       star.textContent = student.star ? "⭐" : "☆";
     });
@@ -210,18 +236,20 @@ function displayStudents() {
 }
 
 function toggleExpelledTableVisibility() {
-  const expelledContainer = document.getElementById("expelled-container");
-
-  if (expelledContainer.style.display === "none") {
-    expelledContainer.style.display = "block";
-  } else {
-    expelledContainer.style.display = "none";
+  const expelledContainer = document.getElementById("expelled-table");
+  if (expelledContainer) {
+    expelledContainer.classList.toggle("hidden");
   }
 }
 
-// Add event listener to the "Expelled Students" button
-const expelledButton = document.getElementById("expelled-button");
-expelledButton.addEventListener("click", toggleExpelledTableVisibility);
+function toggleExpelledTableVisibility() {
+  const expelledContainer = document.getElementById("expelled-table");
+
+  if (expelledContainer) {
+    expelledContainer.classList.toggle("hidden");
+  }
+}
+
 function getBloodStatusLabel() {
   const randomNumber = Math.floor(Math.random() * 3) + 1;
   switch (randomNumber) {
@@ -292,141 +320,108 @@ document.getElementById("search").addEventListener("input", (event) => {
   displayFilteredStudents(filteredStudents);
 });
 
+expelledButton.addEventListener("click", () => {
+  if (!isExpelledVisible) {
+    // Show the expelled container
+    expelledContainer.style.display = "block";
+    // Generate and display the expelled student data
+    // Your code to generate and display the expelled student data
+    isExpelledVisible = true;
+    expelledButton.textContent = "Hide Expelled Students"; // Update button text
+  } else {
+    // Hide the expelled container
+    expelledContainer.style.display = "none";
+    // Clear the expelled student data
+    // Your code to clear the expelled student data
+    isExpelledVisible = false;
+    expelledButton.textContent = "Expelled Students"; // Update button text
+  }
+});
+
 function displayFilteredStudents(filteredStudents) {
-  let tableBody = document.getElementById("students-body");
-  tableBody.innerHTML = "";
+  let activeTableBody = document.getElementById("students-body");
+  let expelledTableBody = document.getElementById("expelled-table");
+  activeTableBody.innerHTML = "";
+  expelledTableBody.innerHTML = "";
 
   filteredStudents.forEach((student) => {
-    // Set default values for winner and star properties
-    if (student.squad === undefined) {
-      student.squad = false;
-    }
-    if (student.star === undefined) {
-      student.star = false;
-    }
-
-    let row = document.createElement("tr");
-    row.innerHTML = `
-      <td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
-        ${student.squad ? "🏆 Now on the squad" : "🏆"}
-      </td>
-      <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-        ${student.star ? "⭐" : "☆"}
-      </td>
-      <td>${student.fullname}</td>
-      <td>${student.gender}</td>
-      <td>${student.house}</td>
-      <td>${student.bloodStatus}</td>
-      <td>
-        <button class="expel-button">${
-          student.expelled ? "Reinstate" : "Expel"
-        }</button>
-        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
-      </td>
-    `;
-    tableBody.appendChild(row);
-
-    // Add click event listener to cup icon
-    const cupIcon = row.querySelector(".cup-icon");
-    cupIcon.addEventListener("click", () => {
-      student.squad = !student.squad;
-      cupIcon.classList.toggle("winner");
-      cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
-    });
-
-    // Add click event listener to expel/reinstate button
-    const expelButton = row.querySelector(".expel-button");
-    const expelledText = row.querySelector(".expelled-text");
-    expelButton.addEventListener("click", () => {
-      student.expelled = !student.expelled;
-      if (student.expelled) {
-        expelledText.textContent = "Expelled";
-        expelButton.textContent = "Reinstate";
-      } else {
-        expelledText.textContent = "";
-        expelButton.textContent = "Expel";
-      }
-    });
-
-    // Add click event listener to star icon
-    const starIcon = row.querySelector(".star-icon");
-    starIcon.addEventListener("click", () => {
-      student.star = !student.star;
-      starIcon.textContent = student.star ? "⭐" : "☆";
-    });
-  });
-
-  function displayStudents() {
-    let studentList = [];
-
-    if (currentHouse === "all") {
-      studentList = students;
+    if (student.expelled) {
+      let expelledRow = document.createElement("tr");
+      expelledRow.innerHTML = `
+        <td>${student.fullname}</td>
+        <td>${student.gender}</td>
+        <td>${student.house}</td>
+        <td>${student.bloodStatus}</td>
+      `;
+      expelledTableBody.appendChild(expelledRow);
     } else {
-      switch (currentHouse) {
-        case "gryffindor":
-          studentList = gryffindor;
-          break;
-        case "slytherin":
-          studentList = slytherin;
-          break;
-        case "hufflepuff":
-          studentList = hufflepuff;
-          break;
-        case "ravenclaw":
-          studentList = ravenclaw;
-          break;
-      }
-    }
+      let activeRow = document.createElement("tr");
+      activeRow.innerHTML = `
+        <td data-field="squad" class="cup-icon ${
+          student.squad ? "winner" : ""
+        }">
+          ${student.squad ? "🏆 Now on the squad" : "🏆"}
+        </td>
+        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+          ${student.star ? "⭐" : "☆"}
+        </td>
+        <td>${student.fullname}</td>
+        <td>${student.gender}</td>
+        <td>${student.house}</td>
+        <td>${student.bloodStatus}</td>
+        <td>
+          <button class="expel-button">${
+            student.expelled ? "Reinstate" : "Expel"
+          }</button>
+          <span class="expelled-text">${
+            student.expelled ? "Expelled" : ""
+          }</span>
+        </td>
+      `;
+      activeTableBody.appendChild(activeRow);
 
-    let tableBody = document.getElementById("students-body");
-    tableBody.innerHTML = "";
-
-    studentList.forEach((student) => {
-      let row = document.createElement("tr");
-      row.innerHTML = `
-          <td data-field="squad" class="cup-icon ${
-            student.squad ? "winner" : ""
-          }">
-            ${student.squad ? "🏆 Now on the squad" : "🏆"}
-          </td>
-          <td data-field="star" class="star-icon ${
-            student.star ? "active" : ""
-          }">
-            ${student.star ? "⭐" : "☆"}
-          </td>
-          <td>${student.fullname}</td>
-          <td>${student.gender}</td>
-          <td>${student.house}</td>
-          <td>${student.bloodStatus}</td>
-        `;
-      tableBody.appendChild(row);
-
-      // Add click event listener to row
-      row.addEventListener("click", () => {
-        showStudentPopup(student);
-      });
-
-      // Add click event listener to cup icon
-      const cupIcon = row.querySelector(".cup-icon");
+      const cupIcon = activeRow.querySelector(".cup-icon");
       cupIcon.addEventListener("click", () => {
         student.squad = !student.squad;
         cupIcon.classList.toggle("winner");
         cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
       });
-    });
 
-    // Add click event listeners to star icons
-    let starIcons = document.querySelectorAll(".star-icon");
-    starIcons.forEach((star) => {
-      star.addEventListener("click", () => {
-        let parentRow = star.closest("tr");
-        let index = Array.from(parentRow.parentNode.children).indexOf(
-          parentRow
-        );
-        let student = studentList[index];
-        student.star = !student.star;
-        star.textContent = student.star ? "⭐" : "☆";
+      const expelButton = activeRow.querySelector(".expel-button");
+      const expelledText = activeRow.querySelector(".expelled-text");
+      expelButton.addEventListener("click", () => {
+        student.expelled = !student.expelled;
+        if (student.expelled) {
+          expelledText.textContent = "Expelled";
+          expelButton.textContent = "Reinstate";
+          expelledTableBody.appendChild(activeRow);
+          activeTableBody.removeChild(activeRow);
+        } else {
+          expelledText.textContent = "";
+          expelButton.textContent = "Expel";
+          activeTableBody.appendChild(activeRow);
+          expelledTableBody.removeChild(activeRow);
+        }
       });
-    });
-  }
+    }
+  });
+}
+
+function showStudentPopup(student) {
+  const popup = document.getElementById("popup");
+  const popupName = document.getElementById("popup-name");
+  const popupDetails = document.getElementById("popup-details");
+
+  // Populate the popup with student information
+  popupName.textContent = student.fullname;
+  popupDetails.textContent = ` Has now been expelled!`;
+
+  // Show the popup
+  popup.style.display = "block";
+
+  // Close the popup when the close button is clicked
+  const closeBtn = document.querySelector(".close");
+  closeBtn.addEventListener("click", () => {
+    popup.style.display = "none";
+  });
 }
