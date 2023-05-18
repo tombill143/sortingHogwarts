@@ -120,8 +120,35 @@ fetch("hogwarts.json")
   .then((response) => response.json())
   .then((data) => {
     students.push(...data);
+
+    // Capitalize names
+    students.forEach((student) => {
+      student.fullname = capitaliseName(student.fullname);
+    });
+
+    // Capitalize house
+    students.forEach((student) => {
+      student.house = capitaliseHouse(student.house);
+    });
+
+    // Removes quotation marks
+    students.forEach((student) => {
+      student.fullname = removeQuotationMarks(student.fullname);
+    });
+
+    // Removes hyphen from name
+    students.forEach((student) => {
+      student.fullname = removeHyphenFromName(student.fullname);
+    });
+
+    // Places a capital letter after hyphens
+    students.forEach((student) => {
+      student.fullname = capitalizeAfterSpaceHyphen(student.fullname);
+    });
+
     sortStudents("fullname");
     displayStudents();
+    /*  hackTheSystem(); */
   })
   .catch((error) => {
     console.error("Error fetching student data:", error);
@@ -156,28 +183,28 @@ function displayStudents() {
 
     let row = document.createElement("tr");
     row.innerHTML = `
-      <td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
-        ${student.squad ? "🏆 Now on the Squad" : "🏆"}
-      </td>
-      <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-        ${student.star ? "⭐" : "☆"}
-      </td>
-      <td>${student.fullname}</td>
-      <td>${student.gender}</td>
-      <td>${student.house}</td>
-      <td>${student.bloodStatus}</td>
-      <td>
-        <button class="expel-button">${
-          student.expelled ? "Reinstate" : "Expel"
-        }</button>
-        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
-      </td>
-    `;
+<td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
+  ${student.squad ? "🏆 Now on the Squad" : "🏆"}
+</td>
+<td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+  ${student.star ? "⭐" : "☆"}
+</td>
+<td class="${student.house.toLowerCase()}">${student.fullname}</td>
+<td class="${student.house.toLowerCase()}">${student.gender}</td>
+<td class="${student.house.toLowerCase()}">${student.house}</td>
+<td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
+<td>
+  <button class="expel-button">${
+    student.expelled ? "Reinstate" : "Expel"
+  }</button>
+  <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
+</td>
+`;
     activeTableBody.appendChild(row);
 
     // Add click event listener to row
     row.addEventListener("click", () => {
-      showStudentPopup(student);
+      showStudentDetailsPopup(student);
     });
 
     // Add click event listener to cup icon
@@ -342,36 +369,38 @@ function displayFilteredStudents(filteredStudents) {
       let expelledRow = document.createElement("tr");
       expelledRow.innerHTML = `
         <td>${student.fullname}</td>
-        <td>${student.gender}</td>
-        <td>${student.house}</td>
-        <td>${student.bloodStatus}</td>
+        <td class="gender-field ${student.gender.toLowerCase()}">${
+        student.gender
+      }</td>
+        <td class="${student.house.toLowerCase()}">${student.house}</td>
+        <td class="blood-status-field">${student.bloodStatus}</td>
       `;
       expelledTableBody.appendChild(expelledRow);
     } else {
       let activeRow = document.createElement("tr");
       activeRow.innerHTML = `
-        <td data-field="squad" class="cup-icon ${
-          student.squad ? "winner" : ""
-        }">
-          ${student.squad ? "🏆 Now on the squad" : "🏆"}
-        </td>
-        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-          ${student.star ? "⭐" : "☆"}
-        </td>
-        <td>${student.fullname}</td>
-        <td>${student.gender}</td>
-        <td>${student.house}</td>
-        <td>${student.bloodStatus}</td>
-        <td>
-          <button class="expel-button">${
-            student.expelled ? "Reinstate" : "Expel"
-          }</button>
-          <span class="expelled-text">${
-            student.expelled ? "Expelled" : ""
-          }</span>
-        </td>
-      `;
+<td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
+  ${student.squad ? "🏆 Now on the Squad" : "🏆"}
+</td>
+<td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+  ${student.star ? "⭐" : "☆"}
+</td>
+<td class="${student.house.toLowerCase()}">${student.fullname}</td>
+<td class="${student.house.toLowerCase()}">${student.gender}</td>
+<td class="${student.house.toLowerCase()}">${student.house}</td>
+<td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
+<td>
+  <button class="expel-button">${
+    student.expelled ? "Reinstate" : "Expel"
+  }</button>
+  <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
+</td>
+`;
       activeTableBody.appendChild(activeRow);
+
+      activeRow.addEventListener("click", () => {
+        showStudentPopup(student);
+      });
 
       const cupIcon = activeRow.querySelector(".cup-icon");
       cupIcon.addEventListener("click", (event) => {
@@ -415,19 +444,6 @@ function displayFilteredStudents(filteredStudents) {
           expelledTableBody.removeChild(activeRow);
         }
       });
-      activeRow.addEventListener("click", () => {
-        showStudentPopup(student);
-      });
-
-      const starIcon = activeRow.querySelector(".star-icon");
-      starIcon.addEventListener("click", (event) => {
-        event.stopPropagation(); // Prevent row click event from firing when star icon is clicked
-        const currentStars = filteredStudents.filter((student) => student.star);
-        if (currentStars.length < 2 || student.star) {
-          student.star = !student.star;
-          starIcon.textContent = student.star ? "⭐" : "☆";
-        }
-      });
     }
   });
 }
@@ -453,4 +469,177 @@ function showStudentPopup(student) {
   closeBtn.addEventListener("click", () => {
     popup.style.display = "none";
   });
+}
+
+//-------------CLEANUP DATA-------------------
+
+function capitaliseName(name) {
+  if (!name) {
+    return "";
+  }
+  const nameParts = name.split(" ");
+  return nameParts
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function capitaliseHouse(house) {
+  const makeHouseUppercase = house.split(" ");
+  return makeHouseUppercase
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function removeQuotationMarks(fullname) {
+  let result = fullname.replace(/["\\]/g, "");
+  return result;
+}
+
+function removeHyphenFromName(fullname) {
+  let output = "";
+  let nicknameStarted = false;
+
+  for (let i = 0; i < fullname.length; i++) {
+    if (fullname.charAt(i) === "-") {
+      output += " ";
+      nicknameStarted = true;
+    } else if (nicknameStarted) {
+      output += fullname.charAt(i);
+    } else {
+      output += fullname.charAt(i);
+    }
+  }
+
+  return output;
+}
+
+function capitalizeAfterSpaceHyphen(input) {
+  let output = input.charAt(0);
+  for (let i = 1; i < input.length; i++) {
+    if (input.charAt(i - 1) === " " || input.charAt(i - 1) === "-") {
+      output += input.charAt(i).toUpperCase();
+    } else {
+      output += input.charAt(i);
+    }
+  }
+  return output;
+}
+
+//---------------HACK THE SYSTEM-----------------------------
+
+function hackTheSystem() {
+  // Inject your own student data
+  const yourName = "Aromatic Pat";
+  const yourHouse = "Gryffindor";
+  const yourGender = "boy";
+  const yourBloodStatus = "Pure Blood";
+
+  const newStudent = {
+    fullname: yourName,
+    house: yourHouse,
+    gender: yourGender,
+    bloodStatus: yourBloodStatus,
+    expelled: false,
+    squad: false,
+    star: false,
+  };
+
+  students.push(newStudent);
+
+  // Modify blood status randomly for former pure-bloods
+  students.forEach((student) => {
+    if (student.bloodStatus === "Pure Blood") {
+      student.bloodStatus = Math.random() < 0.5 ? "Pure Blood" : "Half Blood";
+    } else {
+      student.bloodStatus = Math.random() < 0.5 ? "Pure Blood" : "Muggle Blood";
+    }
+  });
+
+  // Add student to inquisitorial squad for a limited time
+  const squadDuration = 50; // Duration in milliseconds
+  newStudent.squad = true;
+  setTimeout(() => {
+    newStudent.squad = false;
+  }, squadDuration);
+
+  // Display notification message
+  const notification = document.getElementById("notification");
+  notification.textContent =
+    "System hacked! You are now immortal, blood statuses are unreliable, and you are temporarily in the Inquisitorial Squad.";
+
+  // Remove notification after a certain time
+  const notificationDuration = 100; // Duration in milliseconds
+  setTimeout(() => {
+    notification.textContent = "";
+  }, notificationDuration);
+}
+
+//----------------------STUDENT INFO POPUP-----------------------------
+
+function showStudentDetailsPopup(student) {
+  // Retrieve necessary elements
+  const popupContainer = document.getElementById("popup-container");
+  const popupContent = document.getElementById("popup-content");
+  const closeButton = document.getElementById("popup-close");
+
+  // Populate student details
+  const firstName = student.firstName || "";
+  const middleName = student.middleName || "";
+  const nickname = student.nickname || "";
+  const lastName = student.lastName || "";
+  const photo = student.photo || "";
+  const house = student.house || "";
+  const bloodStatus = student.bloodStatus || "";
+  const isPrefect = student.prefect || false;
+  const isExpelled = student.expelled || false;
+  const isInquisitorialSquad = student.inquisitorialSquad || false;
+
+  // Set student details in the popup
+  popupContent.innerHTML = `
+    <div class="popup-header ${house.toLowerCase()}">
+      <h2>${firstName} ${lastName}</h2>
+      <img src="${photo}" alt="Student Photo" />
+    </div>
+    <div class="popup-details">
+      <div class="popup-house ${house.toLowerCase()}">
+        <img src="${getHouseCrestImage(house)}" alt="House Crest" />
+        <p>${house}</p>
+      </div>
+      <p>First Name: ${firstName}</p>
+      <p>Middle Name: ${middleName}</p>
+      <p>Nickname: ${nickname}</p>
+      <p>Last Name: ${lastName}</p>
+      <p>Blood Status: ${bloodStatus}</p>
+      <p>Prefect: ${isPrefect ? "Yes" : "No"}</p>
+      <p>Expelled: ${isExpelled ? "Yes" : "No"}</p>
+      <p>Inquisitorial Squad: ${isInquisitorialSquad ? "Yes" : "No"}</p>
+    </div>
+  `;
+
+  // Add house theme to the popup
+  popupContainer.classList.add(house.toLowerCase());
+
+  // Display the popup
+  popupContainer.style.display = "block";
+
+  // Close the popup when close button is clicked
+  closeButton.addEventListener("click", () => {
+    popupContainer.style.display = "none";
+    // Remove house theme from the popup
+    popupContainer.classList.remove(house.toLowerCase());
+  });
+}
+
+// Helper function to get the house crest image URL based on the house name
+function getHouseCrestImage(house) {
+  // Map house names to their corresponding crest image URLs
+  const houseCrests = {
+    Gryffindor: "gryffindor-crest.png",
+    Slytherin: "slytherin-crest.png",
+    Hufflepuff: "hufflepuff-crest.png",
+    Ravenclaw: "ravenclaw-crest.png",
+  };
+
+  // Return the crest image URL for the given house
+  return houseCrests[house] || "";
 }

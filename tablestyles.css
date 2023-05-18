@@ -1,7 +1,35 @@
+@font-face {
+  font-family: myFont;
+  src: url("./Stardew_Valley.ttf");
+}
+
+html {
+  background-image: url(./styleimages/stars1.gif);
+}
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: myFont;
+  font-size: 25px;
   margin: 0;
   padding: 0;
+}
+
+select#option {
+  font-family: myFont;
+  font-size: 20px;
+}
+
+input#search {
+  font-family: myFont;
+  font-size: 20px;
+}
+
+label {
+  color: white;
+}
+
+.expelled {
+  background-color: #222f5b;
 }
 
 #about-container {
@@ -10,14 +38,43 @@ body {
   margin-left: 40%;
 }
 
+#student-table {
+  background-color: bisque;
+  border: solid white;
+}
+
+.titlebox {
+  background-color: bisque;
+  margin: 3em;
+  border: 3px solid palevioletred;
+}
+
 #about-button {
+  font-family: myFont;
   padding: 8px 16px;
   margin-left: 2em;
+  font-size: 20px;
   background-color: white;
   color: black;
   border: 1px solid black;
   border-radius: 4px;
   cursor: pointer;
+}
+
+#about-button:hover {
+  padding: 8px 16px;
+  margin-left: 2em;
+  background-color: black;
+  color: white;
+  border: 1px solid rgb(255, 255, 255);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#about-container {
+  background-color: bisque;
+  padding: none;
+  color: rgb(115, 25, 25);
 }
 
 .popup {
@@ -33,12 +90,21 @@ body {
 }
 
 .popup-content {
-  background-color: #fefefe;
+  background-color: rgb(108, 27, 201);
+  color: white;
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
   max-width: 600px;
+}
+
+p#popup-details {
+  text-align: center;
+}
+
+h2#popup-name {
+  color: rgb(255, 255, 255);
 }
 
 .close {
@@ -92,6 +158,13 @@ body {
 h1 {
   margin: 20px 0;
   text-align: center;
+  color: brown;
+}
+
+h2 {
+  margin: 20px 0;
+  text-align: center;
+  color: brown;
 }
 
 .filters-container {
@@ -147,6 +220,26 @@ tbody td {
 
 #option {
   margin-right: 1em;
+}
+
+.gryffindor {
+  background-color: #740001;
+  color: #f0ba2b;
+}
+
+.slytherin {
+  background-color: #1a472a;
+  color: #aaaaaa;
+}
+
+.hufflepuff {
+  background-color: #ffdb00;
+  color: black;
+}
+
+.ravenclaw {
+  background-color: #222f5b;
+  color: #e4a548;
 }
 
 /* ****** STAR ****** */
