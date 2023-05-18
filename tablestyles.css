@@ -20,6 +20,38 @@ body {
   cursor: pointer;
 }
 
+#expelled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-left: 800px;
+}
+
+#expelled-table th,
+#expelled-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#expelled-table th {
+  background-color: #f2f2f2;
+}
+
+#expelled-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+#expelled-button {
+  padding: 8px 16px;
+  margin-left: 2em;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 h1 {
   margin: 20px 0;
   text-align: center;

@@ -62,14 +62,19 @@ function updateDisplayedCount() {
   document.getElementById("displayed-count").textContent = displayedCount;
 }
 
-// Call the function whenever a student is expelled
-function expelStudent() {
-  // Logic to expel the student
-  // ...
-
-  // Update the displayed count
-  updateDisplayedCount();
-}
+students.forEach((student) => {
+  const expelButton = document.getElementById(`expel-button-${student.id}`);
+  if (expelButton) {
+    expelButton.addEventListener("click", () => {
+      student.expelled = true;
+      const expelledRow = document.getElementById(`student-row-${student.id}`);
+      if (expelledRow) {
+        expelledRow.style.display = "none";
+        updateDisplayedCount();
+      }
+    });
+  }
+});
 
 // Function to create a table row with two cells
 function createTableRow(label, value) {
@@ -94,32 +99,29 @@ fetch("hogwarts.json")
     console.error("Error fetching student data:", error);
   });
 
+let activeStudents = [];
+let expelledStudents = [];
+
 function displayStudents() {
-  let studentList = [];
+  let activeStudents = [];
+  let expelledStudents = [];
 
   if (currentHouse === "all") {
-    studentList = students;
+    activeStudents = students.filter((student) => !student.expelled);
+    expelledStudents = students.filter((student) => student.expelled);
   } else {
-    switch (currentHouse) {
-      case "gryffindor":
-        studentList = gryffindor;
-        break;
-      case "slytherin":
-        studentList = slytherin;
-        break;
-      case "hufflepuff":
-        studentList = hufflepuff;
-        break;
-      case "ravenclaw":
-        studentList = ravenclaw;
-        break;
-    }
+    const houseStudents = getHouseStudents(currentHouse);
+    activeStudents = houseStudents.filter((student) => !student.expelled);
+    expelledStudents = houseStudents.filter((student) => student.expelled);
   }
 
-  let tableBody = document.getElementById("students-body");
-  tableBody.innerHTML = "";
+  let activeTableBody = document.getElementById("students-body");
+  let expelledTableBody = document.getElementById("expelled-table");
 
-  studentList.forEach((student) => {
+  activeTableBody.innerHTML = "";
+  expelledTableBody.innerHTML = "";
+
+  activeStudents.forEach((student) => {
     // Assign a random blood status value between 1 and 3
     student.bloodStatus = getBloodStatusLabel();
 
@@ -138,13 +140,15 @@ function displayStudents() {
         <td>${student.house}</td>
         <td>${student.bloodStatus}</td>
         <td>
-        <button class="expel-button">${
-          student.expelled ? "Reinstate" : "Expel"
-        }</button>
-        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
-      </td>
+          <button class="expel-button">${
+            student.expelled ? "Reinstate" : "Expel"
+          }</button>
+          <span class="expelled-text">${
+            student.expelled ? "Expelled" : ""
+          }</span>
+        </td>
       `;
-    tableBody.appendChild(row);
+    activeTableBody.appendChild(row);
 
     // Add click event listener to row
     row.addEventListener("click", () => {
@@ -167,11 +171,29 @@ function displayStudents() {
       if (student.expelled) {
         expelledText.textContent = "Expelled";
         expelButton.textContent = "Reinstate";
+        expelledStudents.push(student);
+        activeStudents = activeStudents.filter((s) => s !== student);
       } else {
         expelledText.textContent = "";
         expelButton.textContent = "Expel";
+        activeStudents.push(student);
+        expelledStudents = expelledStudents.filter((s) => s !== student);
       }
+      displayStudents();
+      updateDisplayedCount();
+      toggleExpelledTableVisibility(); // Add this line
     });
+  });
+
+  expelledStudents.forEach((student) => {
+    let row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${student.fullname}</td>
+        <td>${student.gender}</td>
+        <td>${student.house}</td>
+        <td>${student.bloodStatus}</td>
+      `;
+    expelledTableBody.appendChild(row);
   });
 
   // Add click event listeners to star icons
@@ -180,13 +202,26 @@ function displayStudents() {
     star.addEventListener("click", () => {
       let parentRow = star.closest("tr");
       let index = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-      let student = studentList[index];
+      let student = activeStudents[index];
       student.star = !student.star;
       star.textContent = student.star ? "⭐" : "☆";
     });
   });
 }
 
+function toggleExpelledTableVisibility() {
+  const expelledContainer = document.getElementById("expelled-container");
+
+  if (expelledContainer.style.display === "none") {
+    expelledContainer.style.display = "block";
+  } else {
+    expelledContainer.style.display = "none";
+  }
+}
+
+// Add event listener to the "Expelled Students" button
+const expelledButton = document.getElementById("expelled-button");
+expelledButton.addEventListener("click", toggleExpelledTableVisibility);
 function getBloodStatusLabel() {
   const randomNumber = Math.floor(Math.random() * 3) + 1;
   switch (randomNumber) {
