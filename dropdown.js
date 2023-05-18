@@ -157,7 +157,7 @@ function displayStudents() {
     let row = document.createElement("tr");
     row.innerHTML = `
       <td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
-        ${student.squad ? "🏆 Now on the squad" : "🏆"}
+        ${student.squad ? "🏆 Now on the Squad" : "🏆"}
       </td>
       <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
         ${student.star ? "⭐" : "☆"}
@@ -183,9 +183,27 @@ function displayStudents() {
     // Add click event listener to cup icon
     const cupIcon = row.querySelector(".cup-icon");
     cupIcon.addEventListener("click", () => {
-      student.squad = !student.squad;
-      cupIcon.classList.toggle("winner");
-      cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
+      const isSlytherin = student.house.toLowerCase() === "slytherin";
+      const isPureBlood = student.bloodStatus.toLowerCase() === "pure blood";
+
+      if ((isSlytherin || isPureBlood) && !student.squad) {
+        const inquisitorialSquadMembers = filteredActiveStudents.filter(
+          (s) =>
+            s.squad &&
+            (s.house.toLowerCase() === "slytherin" ||
+              s.bloodStatus.toLowerCase() === "pure blood")
+        );
+
+        if (inquisitorialSquadMembers.length < 12) {
+          student.squad = true;
+          cupIcon.classList.add("winner");
+          cupIcon.textContent = "🏆 Now on the Squad";
+        }
+      } else {
+        student.squad = false;
+        cupIcon.classList.remove("winner");
+        cupIcon.textContent = "🏆";
+      }
     });
 
     // Add click event listener to expel/reinstate button
@@ -202,35 +220,10 @@ function displayStudents() {
       } else {
         expelledText.textContent = "";
         expelButton.textContent = "Expel";
-        expelledStudents = expelledStudents.filter((s) => s !== student);
-        expelledTableBody.removeChild(row);
+        expelledStudents.splice(expelledStudents.indexOf(student), 1);
         activeTableBody.appendChild(row);
+        expelledTableBody.removeChild(row);
       }
-      updateDisplayedCount();
-      toggleExpelledTableVisibility();
-    });
-  });
-
-  expelledStudents.forEach((student) => {
-    let row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${student.fullname}</td>
-      <td>${student.gender}</td>
-      <td>${student.house}</td>
-      <td>${student.bloodStatus}</td>
-    `;
-    expelledTableBody.appendChild(row);
-  });
-
-  // Add click event listeners to star icons
-  let starIcons = document.querySelectorAll(".star-icon");
-  starIcons.forEach((star) => {
-    star.addEventListener("click", () => {
-      let parentRow = star.closest("tr");
-      let index = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-      let student = filteredActiveStudents[index];
-      student.star = !student.star;
-      star.textContent = student.star ? "⭐" : "☆";
     });
   });
 }
@@ -381,10 +374,29 @@ function displayFilteredStudents(filteredStudents) {
       activeTableBody.appendChild(activeRow);
 
       const cupIcon = activeRow.querySelector(".cup-icon");
-      cupIcon.addEventListener("click", () => {
-        student.squad = !student.squad;
-        cupIcon.classList.toggle("winner");
-        cupIcon.textContent = student.squad ? "🏆 Now on the Squad" : "🏆";
+      cupIcon.addEventListener("click", (event) => {
+        event.stopPropagation(); // Prevent row click event from firing when cup icon is clicked
+        const isSlytherin = student.house.toLowerCase() === "slytherin";
+        const isPureBlood = student.bloodStatus.toLowerCase() === "pure blood";
+
+        if ((isSlytherin || isPureBlood) && !student.squad) {
+          const inquisitorialSquadMembers = filteredStudents.filter(
+            (s) =>
+              s.squad &&
+              (s.house.toLowerCase() === "slytherin" ||
+                s.bloodStatus.toLowerCase() === "pure blood")
+          );
+
+          if (inquisitorialSquadMembers.length < 12) {
+            student.squad = true;
+            cupIcon.classList.add("winner");
+            cupIcon.textContent = "🏆 Now on the Squad";
+          }
+        } else {
+          student.squad = false;
+          cupIcon.classList.remove("winner");
+          cupIcon.textContent = "🏆";
+        }
       });
 
       const expelButton = activeRow.querySelector(".expel-button");
@@ -403,18 +415,35 @@ function displayFilteredStudents(filteredStudents) {
           expelledTableBody.removeChild(activeRow);
         }
       });
+      activeRow.addEventListener("click", () => {
+        showStudentPopup(student);
+      });
+
+      const starIcon = activeRow.querySelector(".star-icon");
+      starIcon.addEventListener("click", (event) => {
+        event.stopPropagation(); // Prevent row click event from firing when star icon is clicked
+        const currentStars = filteredStudents.filter((student) => student.star);
+        if (currentStars.length < 2 || student.star) {
+          student.star = !student.star;
+          starIcon.textContent = student.star ? "⭐" : "☆";
+        }
+      });
     }
   });
 }
 
 function showStudentPopup(student) {
+  if (!student.expelled) {
+    return; // If the student is not expelled, exit the function and don't show the popup
+  }
+
   const popup = document.getElementById("popup");
   const popupName = document.getElementById("popup-name");
   const popupDetails = document.getElementById("popup-details");
 
   // Populate the popup with student information
   popupName.textContent = student.fullname;
-  popupDetails.textContent = ` Has now been expelled!`;
+  popupDetails.textContent = "Has been expelled!";
 
   // Show the popup
   popup.style.display = "block";
