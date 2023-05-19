@@ -251,6 +251,14 @@ function displayStudents() {
       }
     });
 
+    // Add click event listener to star icon
+    const starIcon = row.querySelector(".star-icon");
+    starIcon.addEventListener("click", () => {
+      student.star = !student.star;
+      starIcon.classList.toggle("active", student.star);
+      starIcon.textContent = student.star ? "⭐" : "☆";
+    });
+
     // Add click event listener to expel/reinstate button
     const expelButton = row.querySelector(".expel-button");
     const expelledText = row.querySelector(".expelled-text");
