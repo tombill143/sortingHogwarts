@@ -77,6 +77,18 @@ label {
   color: rgb(115, 25, 25);
 }
 
+.student-popup {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
 .popup {
   display: none;
   position: fixed;
@@ -203,7 +215,8 @@ table {
 }
 
 thead {
-  background-color: #ddd;
+  background-color: #5d23d0;
+  color: white;
 }
 
 thead th {
@@ -240,6 +253,34 @@ tbody td {
 .ravenclaw {
   background-color: #222f5b;
   color: #e4a548;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+/* Add styles for student details */
+.student-info {
+  display: flex;
+  align-items: center;
+}
+
+.student-photo {
+  margin-right: 20px;
+}
+
+.student-photo img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 /* ****** STAR ****** */

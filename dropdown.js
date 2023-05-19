@@ -131,10 +131,10 @@ fetch("hogwarts.json")
       student.house = capitaliseHouse(student.house);
     });
 
-    // Removes quotation marks
+    /*  // Removes quotation marks
     students.forEach((student) => {
       student.fullname = removeQuotationMarks(student.fullname);
-    });
+    }); */
 
     // Removes hyphen from name
     students.forEach((student) => {
@@ -181,25 +181,43 @@ function displayStudents() {
     // Assign a random blood status value between 1 and 3
     student.bloodStatus = getBloodStatusLabel();
 
+    const fullNameParts = student.fullname.trim().split(" ");
+    const firstName = fullNameParts[0];
+    let middleName =
+      fullNameParts.length > 2
+        ? fullNameParts.slice(1, -1).join(" ").trim()
+        : "-";
+    let lastName = fullNameParts[fullNameParts.length - 1].trim();
+
+    const nickname =
+      middleName.startsWith('"') && middleName.endsWith('"')
+        ? middleName.slice(1, -1).charAt(0).toUpperCase() +
+          middleName.slice(2, -1).toLowerCase()
+        : "-";
+
     let row = document.createElement("tr");
     row.innerHTML = `
-<td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
-  ${student.squad ? "🏆 Now on the Squad" : "🏆"}
-</td>
-<td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-  ${student.star ? "⭐" : "☆"}
-</td>
-<td class="${student.house.toLowerCase()}">${student.fullname}</td>
-<td class="${student.house.toLowerCase()}">${student.gender}</td>
-<td class="${student.house.toLowerCase()}">${student.house}</td>
-<td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
-<td>
-  <button class="expel-button">${
-    student.expelled ? "Reinstate" : "Expel"
-  }</button>
-  <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
-</td>
-`;
+      <td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
+        ${student.squad ? "🏆 Now on the Squad" : "🏆"}
+      </td>
+      <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+        ${student.star ? "⭐" : "☆"}
+      </td>
+      <td class="${student.house.toLowerCase()}">${firstName}</td>
+      <td class="${student.house.toLowerCase()}">${middleName}</td>
+      <td class="${student.house.toLowerCase()} nickname">${nickname}</td>
+      <td class="${student.house.toLowerCase()}">${lastName}</td>
+      <td class="${student.house.toLowerCase()}">${student.gender}</td>
+      <td class="${student.house.toLowerCase()}">${student.house}</td>
+      <td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
+      <td>
+        <button class="expel-button">${
+          student.expelled ? "Reinstate" : "Expel"
+        }</button>
+        <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
+      </td>
+    `;
+
     activeTableBody.appendChild(row);
 
     // Add click event listener to row
@@ -366,6 +384,7 @@ function displayFilteredStudents(filteredStudents) {
 
   filteredStudents.forEach((student) => {
     if (student.expelled) {
+      // Code for expelled students
       let expelledRow = document.createElement("tr");
       expelledRow.innerHTML = `
         <td>${student.fullname}</td>
@@ -377,25 +396,48 @@ function displayFilteredStudents(filteredStudents) {
       `;
       expelledTableBody.appendChild(expelledRow);
     } else {
+      // Code for active students
       let activeRow = document.createElement("tr");
+
+      const fullNameParts = student.fullname.trim().split(" ");
+      const firstName = fullNameParts[0];
+      let middleName =
+        fullNameParts.length > 2
+          ? fullNameParts.slice(1, -1).join(" ").trim()
+          : "-";
+      let lastName = fullNameParts[fullNameParts.length - 1].trim();
+
+      const nickname =
+        middleName.startsWith('"') && middleName.endsWith('"')
+          ? middleName.slice(1, -1)
+          : "-";
+
       activeRow.innerHTML = `
-<td data-field="squad" class="cup-icon ${student.squad ? "winner" : ""}">
-  ${student.squad ? "🏆 Now on the Squad" : "🏆"}
-</td>
-<td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-  ${student.star ? "⭐" : "☆"}
-</td>
-<td class="${student.house.toLowerCase()}">${student.fullname}</td>
-<td class="${student.house.toLowerCase()}">${student.gender}</td>
-<td class="${student.house.toLowerCase()}">${student.house}</td>
-<td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
-<td>
-  <button class="expel-button">${
-    student.expelled ? "Reinstate" : "Expel"
-  }</button>
-  <span class="expelled-text">${student.expelled ? "Expelled" : ""}</span>
-</td>
-`;
+        <td data-field="squad" class="cup-icon ${
+          student.squad ? "winner" : ""
+        }">
+          ${student.squad ? "🏆 Now on the Squad" : "🏆"}
+        </td>
+        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
+          ${student.star ? "⭐" : "☆"}
+        </td>
+        <td class="${student.house.toLowerCase()}">${firstName}</td>
+        <td class="${student.house.toLowerCase()}">${middleName}</td>
+        <td class="${student.house.toLowerCase()} nickname">${nickname}</td>
+        <td class="${student.house.toLowerCase()}">${lastName}</td>
+        <td class="${student.house.toLowerCase()}">${student.gender}</td>
+        <td class="${student.house.toLowerCase()}">${student.house}</td>
+        <td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
+        <td>
+          <button class="expel-button">${
+            student.expelled ? "Reinstate" : "Expel"
+          }</button>
+          <span class="expelled-text">${
+            student.expelled ? "Expelled" : ""
+          }</span>
+        </td>
+      `;
+
       activeTableBody.appendChild(activeRow);
 
       activeRow.addEventListener("click", () => {
@@ -490,10 +532,10 @@ function capitaliseHouse(house) {
     .join(" ");
 }
 
-function removeQuotationMarks(fullname) {
+/* function removeQuotationMarks(fullname) {
   let result = fullname.replace(/["\\]/g, "");
   return result;
-}
+} */
 
 function removeHyphenFromName(fullname) {
   let output = "";
@@ -576,70 +618,86 @@ function hackTheSystem() {
 
 //----------------------STUDENT INFO POPUP-----------------------------
 
-function showStudentDetailsPopup(student) {
-  // Retrieve necessary elements
-  const popupContainer = document.getElementById("popup-container");
-  const popupContent = document.getElementById("popup-content");
-  const closeButton = document.getElementById("popup-close");
+/* function showStudentDetailsPopup(student) {
+  const popupContainer = document.getElementById("student-popup");
+  const popupContent = document.getElementById("student-popup-content");
 
-  // Populate student details
-  const firstName = student.firstName || "";
-  const middleName = student.middleName || "";
-  const nickname = student.nickname || "";
-  const lastName = student.lastName || "";
-  const photo = student.photo || "";
-  const house = student.house || "";
-  const bloodStatus = student.bloodStatus || "";
-  const isPrefect = student.prefect || false;
-  const isExpelled = student.expelled || false;
-  const isInquisitorialSquad = student.inquisitorialSquad || false;
+  // Clear previous content
+  popupContent.innerHTML = "";
 
-  // Set student details in the popup
-  popupContent.innerHTML = `
-    <div class="popup-header ${house.toLowerCase()}">
-      <h2>${firstName} ${lastName}</h2>
-      <img src="${photo}" alt="Student Photo" />
-    </div>
-    <div class="popup-details">
-      <div class="popup-house ${house.toLowerCase()}">
-        <img src="${getHouseCrestImage(house)}" alt="House Crest" />
-        <p>${house}</p>
-      </div>
-      <p>First Name: ${firstName}</p>
-      <p>Middle Name: ${middleName}</p>
-      <p>Nickname: ${nickname}</p>
-      <p>Last Name: ${lastName}</p>
-      <p>Blood Status: ${bloodStatus}</p>
-      <p>Prefect: ${isPrefect ? "Yes" : "No"}</p>
-      <p>Expelled: ${isExpelled ? "Yes" : "No"}</p>
-      <p>Inquisitorial Squad: ${isInquisitorialSquad ? "Yes" : "No"}</p>
-    </div>
-  `;
+  // Create elements with student details
+  const firstName = document.createElement("p");
+  firstName.textContent = "First Name: " + student.first_name;
+  popupContent.appendChild(firstName);
+
+  const middleName = document.createElement("p");
+  middleName.textContent = "Middle Name: " + (student.middle_name || "N/A");
+  popupContent.appendChild(middleName);
+
+  const nickName = document.createElement("p");
+  nickName.textContent = "Nick Name: " + (student.nick_name || "N/A");
+  popupContent.appendChild(nickName);
+
+  const lastName = document.createElement("p");
+  lastName.textContent = "Last Name: " + student.last_name;
+  popupContent.appendChild(lastName);
+
+  if (student.photo) {
+    const photo = document.createElement("img");
+    photo.src = student.photo;
+    photo.alt = student.first_name + " " + student.last_name + " photo";
+    popupContent.appendChild(photo);
+  }
+
+  const houseCrestImage = document.createElement("img");
+  houseCrestImage.src = getHouseCrestImage(student.house);
+  houseCrestImage.alt = student.house + " crest";
+  popupContent.appendChild(houseCrestImage);
+
+  const bloodStatus = document.createElement("p");
+  bloodStatus.textContent = "Blood Status: " + student.bloodStatus;
+  popupContent.appendChild(bloodStatus);
+
+  const prefectStatus = document.createElement("p");
+  prefectStatus.textContent = "Prefect: " + (student.prefect ? "Yes" : "No");
+  popupContent.appendChild(prefectStatus);
+
+  const expelledStatus = document.createElement("p");
+  expelledStatus.textContent = "Expelled: " + (student.expelled ? "Yes" : "No");
+  popupContent.appendChild(expelledStatus);
+
+  const inquisitorialSquadStatus = document.createElement("p");
+  inquisitorialSquadStatus.textContent =
+    "Inquisitorial Squad: " + (student.inquisitorialSquad ? "Yes" : "No");
+  popupContent.appendChild(inquisitorialSquadStatus);
 
   // Add house theme to the popup
-  popupContainer.classList.add(house.toLowerCase());
+  popupContainer.classList.add(student.house.toLowerCase());
 
   // Display the popup
   popupContainer.style.display = "block";
 
   // Close the popup when close button is clicked
+  const closeButton = document.createElement("span");
+  closeButton.textContent = "Close";
   closeButton.addEventListener("click", () => {
     popupContainer.style.display = "none";
     // Remove house theme from the popup
-    popupContainer.classList.remove(house.toLowerCase());
+    popupContainer.classList.remove(student.house.toLowerCase());
   });
+  popupContent.appendChild(closeButton);
 }
 
 // Helper function to get the house crest image URL based on the house name
 function getHouseCrestImage(house) {
   // Map house names to their corresponding crest image URLs
   const houseCrests = {
-    Gryffindor: "gryffindor-crest.png",
-    Slytherin: "slytherin-crest.png",
-    Hufflepuff: "hufflepuff-crest.png",
-    Ravenclaw: "ravenclaw-crest.png",
+    Gryffindor: "styleimages/gryffindor.png",
+    Slytherin: "styleimages/slytherin.png",
+    Hufflepuff: "styleimages/hufflepuff.png",
+    Ravenclaw: "styleimages/ravenclaw.png",
   };
 
   // Return the crest image URL for the given house
   return houseCrests[house] || "";
-}
+} */
