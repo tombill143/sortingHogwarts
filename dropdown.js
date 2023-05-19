@@ -222,7 +222,7 @@ function displayStudents() {
 
     // Add click event listener to row
     row.addEventListener("click", () => {
-      showStudentDetailsPopup(student);
+      showStudentPopup(student);
     });
 
     // Add click event listener to cup icon
