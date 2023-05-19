@@ -446,6 +446,14 @@ function displayFilteredStudents(filteredStudents) {
         </td>
       `;
 
+      // Add click event listener to star icon
+      let starIcon = activeRow.querySelector(".star-icon");
+      starIcon.addEventListener("click", () => {
+        student.star = !student.star;
+        starIcon.classList.toggle("active", student.star);
+        starIcon.textContent = student.star ? "⭐" : "☆";
+      });
+
       activeTableBody.appendChild(activeRow);
 
       activeRow.addEventListener("click", () => {
