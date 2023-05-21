@@ -467,12 +467,27 @@ function displayFilteredStudents(filteredStudents) {
         </td>
       `;
 
-      // Add click event listener to star icon
-      let starIcon = activeRow.querySelector(".star-icon");
+      const starIcon = activeRow.querySelector(".star-icon");
       starIcon.addEventListener("click", () => {
-        student.star = !student.star;
-        starIcon.classList.toggle("active", student.star);
-        starIcon.textContent = student.star ? "⭐" : "☆";
+        const house = student.house.toLowerCase();
+        const houseLimit = maxStarsPerHouse[house];
+        const currentPrefects = filteredStudents.filter(
+          (s) => s.star && s.house.toLowerCase() === house
+        );
+
+        if (student.star) {
+          student.star = false;
+          starIcon.classList.remove("active");
+          starIcon.textContent = "☆";
+        } else if (currentPrefects.length < houseLimit) {
+          student.star = true;
+          starIcon.classList.add("active");
+          starIcon.textContent = "⭐";
+        } else {
+          console.log(
+            `The prefect limit for ${student.house} has been reached.`
+          );
+        }
       });
 
       activeTableBody.appendChild(activeRow);
