@@ -157,6 +157,13 @@ fetch("hogwarts.json")
 let activeStudents = [];
 let expelledStudents = [];
 
+const maxStarsPerHouse = {
+  gryffindor: 2,
+  hufflepuff: 2,
+  ravenclaw: 2,
+  slytherin: 2,
+};
+
 function displayStudents() {
   if (currentHouse === "all") {
     activeStudents = students.filter((student) => !student.expelled);
@@ -254,9 +261,23 @@ function displayStudents() {
     // Add click event listener to star icon
     const starIcon = row.querySelector(".star-icon");
     starIcon.addEventListener("click", () => {
-      student.star = !student.star;
-      starIcon.classList.toggle("active", student.star);
-      starIcon.textContent = student.star ? "⭐" : "☆";
+      const house = student.house.toLowerCase();
+      const houseLimit = maxStarsPerHouse[house];
+      const currentPrefects = students.filter(
+        (s) => s.star && s.house.toLowerCase() === house
+      );
+
+      if (student.star) {
+        student.star = false;
+        starIcon.classList.remove("active");
+        starIcon.textContent = "☆";
+      } else if (currentPrefects.length < houseLimit) {
+        student.star = true;
+        starIcon.classList.add("active");
+        starIcon.textContent = "⭐";
+      } else {
+        console.log(`The prefect limit for ${student.house} has been reached.`);
+      }
     });
 
     // Add click event listener to expel/reinstate button
