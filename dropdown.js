@@ -147,6 +147,7 @@ fetch("hogwarts.json")
     });
 
     sortStudents("fullname");
+    getCurrentDateTime();
     displayStudents();
     /*  hackTheSystem(); */
   })
@@ -229,7 +230,32 @@ function displayStudents() {
 
     // Add click event listener to row
     row.addEventListener("click", () => {
-      showStudentPopup(student);
+      expelMessage(student);
+    });
+
+    // Get all the table rows
+    const rows = document.querySelectorAll("#student-table tbody tr");
+
+    // Iterate through the rows and attach event listeners
+    rows.forEach((rows) => {
+      // Add click event listener to row
+      rows.addEventListener("click", () => {
+        expelMessage(student, rows);
+      });
+
+      // Add click event listeners to relevant data cells
+      const dataCells = rows.querySelectorAll(
+        ".fullname, .nickname, .gender, .house, .bloodstatus"
+      );
+      dataCells.forEach((cell) => {
+        cell.addEventListener("click", (event) => {
+          const studentId = rows.dataset.studentId;
+          const student = getStudentById(studentId);
+
+          // Show the studentInfoPopup
+          showStudentInfoPopup(student);
+        });
+      });
     });
 
     // Add click event listener to cup icon
@@ -493,7 +519,7 @@ function displayFilteredStudents(filteredStudents) {
       activeTableBody.appendChild(activeRow);
 
       activeRow.addEventListener("click", () => {
-        showStudentPopup(student);
+        expelMessage(student);
       });
 
       const cupIcon = activeRow.querySelector(".cup-icon");
@@ -542,27 +568,100 @@ function displayFilteredStudents(filteredStudents) {
   });
 }
 
-function showStudentPopup(student) {
+function expelMessage(student) {
   if (!student.expelled) {
     return; // If the student is not expelled, exit the function and don't show the popup
   }
 
-  const popup = document.getElementById("popup");
-  const popupName = document.getElementById("popup-name");
-  const popupDetails = document.getElementById("popup-details");
+  const message = document.getElementById("popup");
+  const messageName = document.getElementById("popup-name");
+  const messageDetails = document.getElementById("popup-details");
 
-  // Populate the popup with student information
-  popupName.textContent = student.fullname;
-  popupDetails.textContent = "Has been expelled!";
+  // Populate the message with student information
+  messageName.textContent = student.fullname;
+  messageDetails.textContent = "Has been expelled!";
 
-  // Show the popup
-  popup.style.display = "block";
+  // Show the message
+  message.style.display = "block";
 
-  // Close the popup when the close button is clicked
+  // Close the expelled message when the close button is clicked
   const closeBtn = document.querySelector(".close");
   closeBtn.addEventListener("click", () => {
-    popup.style.display = "none";
+    message.style.display = "none";
   });
+}
+
+// Function to show the student information popup
+function showStudentInfoPopup(student) {
+  const studentInfoPopup = document.getElementById("studentInfoPopup");
+  const popupName = document.getElementById("studentInfoPopup-name");
+  const popupDetails = document.getElementById("studentInfoPopup-details");
+  const popupPhoto = document.getElementById("studentInfoPopup-photo");
+
+  // Set the student's name and details in the popup
+  popupName.textContent = student.fullname;
+  popupDetails.innerHTML = `
+    First Name: ${student.firstname}<br>
+    Middle Name: ${student.middlename}<br>
+    Nick Name: ${student.nickname}<br>
+    Last Name: ${student.lastname}<br>
+    House: ${student.house}<br>
+    Blood Status: ${student.bloodStatus}<br>
+    Prefect: ${student.prefect ? "Yes" : "No"}<br>
+    Expelled: ${student.expelled ? "Yes" : "No"}<br>
+    Inquisitorial Squad: ${student.inquisitorialSquad ? "Yes" : "No"}
+  `;
+
+  // Set the student's photo if available
+  if (student.photo) {
+    popupPhoto.innerHTML = `<img src="${student.photo}" alt="Student Photo">`;
+  } else {
+    popupPhoto.innerHTML = "";
+  }
+
+  // Apply house-specific styling to the popup
+  studentInfoPopup.className = "popup"; // Remove any previous house-specific class
+  studentInfoPopup.classList.add(student.house.toLowerCase());
+
+  // Display the studentInfoPopup
+  studentInfoPopup.style.display = "block";
+}
+
+// Add click event listeners to relevant data cells
+const dataCells = document.querySelectorAll(
+  ".fullname, .nickname, .gender, .house, .bloodstatus"
+);
+
+dataCells.forEach((cell) => {
+  cell.addEventListener("click", (event) => {
+    const row = event.target.closest("tr"); // Get the closest parent row element
+    const studentId = row.dataset.studentId;
+    const student = getStudentByFirstName(studentId);
+
+    // Show the studentInfoPopup
+    showStudentInfoPopup(student);
+  });
+});
+
+async function getStudentByFirstName(firstName) {
+  // Make an API request to fetch student data based on the first name
+  // You can use fetch or any other library for making the request
+
+  // Example using fetch:
+  try {
+    const response = await fetch(`hogwarts.json${firstName}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch student data");
+    }
+    const data = await response.json();
+    if (data.length === 0) {
+      throw new Error("Student not found");
+    }
+    return data[0];
+  } catch (error) {
+    // Handle the error case appropriately (e.g., display an error message)
+    console.error(error);
+  }
 }
 
 //-------------CLEANUP DATA-------------------
@@ -668,88 +767,33 @@ function hackTheSystem() {
   }, notificationDuration);
 }
 
-//----------------------STUDENT INFO POPUP-----------------------------
+//----------------------DATE & TIME------------------------------------
 
-/* function showStudentDetailsPopup(student) {
-  const popupContainer = document.getElementById("student-popup");
-  const popupContent = document.getElementById("student-popup-content");
-
-  // Clear previous content
-  popupContent.innerHTML = "";
-
-  // Create elements with student details
-  const firstName = document.createElement("p");
-  firstName.textContent = "First Name: " + student.first_name;
-  popupContent.appendChild(firstName);
-
-  const middleName = document.createElement("p");
-  middleName.textContent = "Middle Name: " + (student.middle_name || "N/A");
-  popupContent.appendChild(middleName);
-
-  const nickName = document.createElement("p");
-  nickName.textContent = "Nick Name: " + (student.nick_name || "N/A");
-  popupContent.appendChild(nickName);
-
-  const lastName = document.createElement("p");
-  lastName.textContent = "Last Name: " + student.last_name;
-  popupContent.appendChild(lastName);
-
-  if (student.photo) {
-    const photo = document.createElement("img");
-    photo.src = student.photo;
-    photo.alt = student.first_name + " " + student.last_name + " photo";
-    popupContent.appendChild(photo);
-  }
-
-  const houseCrestImage = document.createElement("img");
-  houseCrestImage.src = getHouseCrestImage(student.house);
-  houseCrestImage.alt = student.house + " crest";
-  popupContent.appendChild(houseCrestImage);
-
-  const bloodStatus = document.createElement("p");
-  bloodStatus.textContent = "Blood Status: " + student.bloodStatus;
-  popupContent.appendChild(bloodStatus);
-
-  const prefectStatus = document.createElement("p");
-  prefectStatus.textContent = "Prefect: " + (student.prefect ? "Yes" : "No");
-  popupContent.appendChild(prefectStatus);
-
-  const expelledStatus = document.createElement("p");
-  expelledStatus.textContent = "Expelled: " + (student.expelled ? "Yes" : "No");
-  popupContent.appendChild(expelledStatus);
-
-  const inquisitorialSquadStatus = document.createElement("p");
-  inquisitorialSquadStatus.textContent =
-    "Inquisitorial Squad: " + (student.inquisitorialSquad ? "Yes" : "No");
-  popupContent.appendChild(inquisitorialSquadStatus);
-
-  // Add house theme to the popup
-  popupContainer.classList.add(student.house.toLowerCase());
-
-  // Display the popup
-  popupContainer.style.display = "block";
-
-  // Close the popup when close button is clicked
-  const closeButton = document.createElement("span");
-  closeButton.textContent = "Close";
-  closeButton.addEventListener("click", () => {
-    popupContainer.style.display = "none";
-    // Remove house theme from the popup
-    popupContainer.classList.remove(student.house.toLowerCase());
-  });
-  popupContent.appendChild(closeButton);
+// Get the current date and time
+function getCurrentDateTime() {
+  var now = new Date();
+  now.setFullYear(1991); // Set the desired year
+  var options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  var dateTime = now.toLocaleString(undefined, options); // Customize the format if needed
+  return dateTime;
 }
 
-// Helper function to get the house crest image URL based on the house name
-function getHouseCrestImage(house) {
-  // Map house names to their corresponding crest image URLs
-  const houseCrests = {
-    Gryffindor: "styleimages/gryffindor.png",
-    Slytherin: "styleimages/slytherin.png",
-    Hufflepuff: "styleimages/hufflepuff.png",
-    Ravenclaw: "styleimages/ravenclaw.png",
-  };
+// Update the current date and time every second
+function updateDateTime() {
+  var dateTimeElement = document.getElementById("currentDateTime");
+  if (dateTimeElement) {
+    dateTimeElement.innerHTML = getCurrentDateTime();
+  }
+}
 
-  // Return the crest image URL for the given house
-  return houseCrests[house] || "";
-} */
+// Call the updateDateTime function initially and then every second
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+//----------------------STUDENT INFO POPUP-----------------------------

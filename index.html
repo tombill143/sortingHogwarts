@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Sort Users</title>
-  <link rel="stylesheet" href="tablestyles.css">
+  <link rel="stylesheet" href="./tablestyles.css">
 </head>
 <body>
+  
+  <div class="time-date-container">
+    <img class="hogwartsLogo"src="./styleimages/admin-logo_1-removebg-preview.png" alt="">
+    <p id="currentDateTime"></p>
+  </div>
   <div class="titlebox">
+    
   <h1>M.E.R.L.I.N.</h1>
   <h2 class="title-heading">Magical Educational Recreational Interface Network for Hogwarts School of Witchcraft & Wizardy</h2>
 </div>
+
 </div>
     <div class="filters-container">
       <label for="option">Sort by:</label>
@@ -33,8 +40,12 @@
         <p id="popup-details"></p>
       </div>
     </div>
-    <div id="student-popup" class="student-popup">
-      <div id="student-popup-content" class="popup-content"></div>
+    <div id="studentInfoPopup" class="studentInfoPopup">
+      <div class="popup-content">
+        <span class="close">&times;</span>
+        <h2 id="studentInfoPopup-name">.</h2>
+        <p id="studentInfoPopup-details"></p>
+      </div>
     </div>
   
     <table id="student-table">
@@ -44,7 +55,7 @@
           <th data-field="star">Prefects</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="fullname">First Name</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="fullname">Middle Name</th>
-          <th data-action="sort" data-sort-direction="asc" data-sort="fullname">Nickname</th>
+          <th data-action="sort" data-sort-direction="asc" data-sort="fullname">Nick Name</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="fullname">Last Name</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="gender">Gender</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="house">House</th>
