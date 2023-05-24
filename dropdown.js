@@ -124,6 +124,8 @@ fetch("hogwarts.json")
     // Capitalize names
     students.forEach((student) => {
       student.fullname = capitaliseName(student.fullname);
+      // Capitalize house
+      student.house = capitaliseHouse(student.house);
     });
 
     // Capitalize house
@@ -211,7 +213,7 @@ function displayStudents() {
       <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
         ${student.star ? "⭐" : "☆"}
       </td>
-      <td class="${student.house.toLowerCase()}">${firstName}</td>
+      <td class="${student.house.toLowerCase()} test">${firstName}</td>
       <td class="${student.house.toLowerCase()}">${middleName}</td>
       <td class="${student.house.toLowerCase()} nickname">${nickname}</td>
       <td class="${student.house.toLowerCase()}">${lastName}</td>
@@ -228,33 +230,24 @@ function displayStudents() {
 
     activeTableBody.appendChild(row);
 
-    // Add click event listener to row
-    row.addEventListener("click", () => {
-      expelMessage(student);
-    });
-
     // Get all the table rows
     const rows = document.querySelectorAll("#student-table tbody tr");
+    const info = document.querySelectorAll("#student-table tbody .test");
+    console.log("info", info);
+    // The one we would like to work
+    info.forEach((info, index) => {
+      // Add click event listener to row
+      console.log(filteredActiveStudents[index]);
+      info.addEventListener("click", () => {
+        showStudentInfoPopup(filteredActiveStudents[index]);
+      });
+    });
 
     // Iterate through the rows and attach event listeners
     rows.forEach((rows) => {
       // Add click event listener to row
       rows.addEventListener("click", () => {
         expelMessage(student, rows);
-      });
-
-      // Add click event listeners to relevant data cells
-      const dataCells = rows.querySelectorAll(
-        ".fullname, .nickname, .gender, .house, .bloodstatus"
-      );
-      dataCells.forEach((cell) => {
-        cell.addEventListener("click", (event) => {
-          const studentId = rows.dataset.studentId;
-          const student = getStudentById(studentId);
-
-          // Show the studentInfoPopup
-          showStudentInfoPopup(student);
-        });
       });
     });
 
@@ -468,30 +461,32 @@ function displayFilteredStudents(filteredStudents) {
           : "-";
 
       activeRow.innerHTML = `
-        <td data-field="squad" class="cup-icon ${
-          student.squad ? "winner" : ""
-        }">
-          ${student.squad ? "🏆 Now on the Squad" : "🏆"}
-        </td>
-        <td data-field="star" class="star-icon ${student.star ? "active" : ""}">
-          ${student.star ? "⭐" : "☆"}
-        </td>
-        <td class="${student.house.toLowerCase()}">${firstName}</td>
-        <td class="${student.house.toLowerCase()}">${middleName}</td>
-        <td class="${student.house.toLowerCase()} nickname">${nickname}</td>
-        <td class="${student.house.toLowerCase()}">${lastName}</td>
-        <td class="${student.house.toLowerCase()}">${student.gender}</td>
-        <td class="${student.house.toLowerCase()}">${student.house}</td>
-        <td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
-        <td>
-          <button class="expel-button">${
-            student.expelled ? "Reinstate" : "Expel"
-          }</button>
-          <span class="expelled-text">${
-            student.expelled ? "Expelled" : ""
-          }</span>
-        </td>
-      `;
+          <td data-field="squad" class="cup-icon ${
+            student.squad ? "winner" : ""
+          }">
+            ${student.squad ? "🏆 Now on the Squad" : "🏆"}
+          </td>
+          <td data-field="star" class="star-icon ${
+            student.star ? "active" : ""
+          }">
+            ${student.star ? "⭐" : "☆"}
+          </td>
+          <td class="${student.house.toLowerCase()}">${firstName}</td>
+          <td class="${student.house.toLowerCase()}">${middleName}</td>
+          <td class="${student.house.toLowerCase()} nickname">${nickname}</td>
+          <td class="${student.house.toLowerCase()}">${lastName}</td>
+          <td class="${student.house.toLowerCase()}">${student.gender}</td>
+          <td class="${student.house.toLowerCase()}">${student.house}</td>
+          <td class="${student.house.toLowerCase()}">${student.bloodStatus}</td>
+          <td>
+            <button class="expel-button">${
+              student.expelled ? "Reinstate" : "Expel"
+            }</button>
+            <span class="expelled-text">${
+              student.expelled ? "Expelled" : ""
+            }</span>
+          </td>
+        `;
 
       const starIcon = activeRow.querySelector(".star-icon");
       starIcon.addEventListener("click", () => {
@@ -591,12 +586,11 @@ function expelMessage(student) {
   });
 }
 
-// Function to show the student information popup
 function showStudentInfoPopup(student) {
   const studentInfoPopup = document.getElementById("studentInfoPopup");
   const popupName = document.getElementById("studentInfoPopup-name");
   const popupDetails = document.getElementById("studentInfoPopup-details");
-  const popupPhoto = document.getElementById("studentInfoPopup-photo");
+  const popupCloseButton = document.querySelector(".popupclose"); // Update the selector to target the close button
 
   // Set the student's name and details in the popup
   popupName.textContent = student.fullname;
@@ -612,58 +606,43 @@ function showStudentInfoPopup(student) {
     Inquisitorial Squad: ${student.inquisitorialSquad ? "Yes" : "No"}
   `;
 
-  // Set the student's photo if available
-  if (student.photo) {
-    popupPhoto.innerHTML = `<img src="${student.photo}" alt="Student Photo">`;
-  } else {
-    popupPhoto.innerHTML = "";
-  }
-
   // Apply house-specific styling to the popup
   studentInfoPopup.className = "popup"; // Remove any previous house-specific class
-  studentInfoPopup.classList.add(student.house.toLowerCase());
+  //studentInfoPopup.classList.add(student.house.toLowerCase());
 
   // Display the studentInfoPopup
   studentInfoPopup.style.display = "block";
+
+  // Add event listener to close the popup
+  popupCloseButton.addEventListener("click", () => {
+    closeStudentInfoPopup();
+  });
 }
 
-// Add click event listeners to relevant data cells
+function closeStudentInfoPopup() {
+  const studentInfoPopup = document.getElementById("studentInfoPopup");
+  studentInfoPopup.style.display = "none";
+}
+
+/* // Add click event listeners to relevant data cells
 const dataCells = document.querySelectorAll(
   ".fullname, .nickname, .gender, .house, .bloodstatus"
-);
+); */
 
-dataCells.forEach((cell) => {
-  cell.addEventListener("click", (event) => {
-    const row = event.target.closest("tr"); // Get the closest parent row element
+dataCells.forEach(async (cell) => {
+  cell.addEventListener("click", async (event) => {
+    const row = event.target.closest("tr");
     const studentId = row.dataset.studentId;
-    const student = getStudentByFirstName(studentId);
 
-    // Show the studentInfoPopup
-    showStudentInfoPopup(student);
+    try {
+      const student = await getStudentByFirstName(studentId);
+      showStudentInfoPopup(student);
+    } catch (error) {
+      // Handle any errors that occur during the API request or processing
+      console.error(error);
+    }
   });
 });
-
-async function getStudentByFirstName(firstName) {
-  // Make an API request to fetch student data based on the first name
-  // You can use fetch or any other library for making the request
-
-  // Example using fetch:
-  try {
-    const response = await fetch(`hogwarts.json${firstName}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch student data");
-    }
-    const data = await response.json();
-    if (data.length === 0) {
-      throw new Error("Student not found");
-    }
-    return data[0];
-  } catch (error) {
-    // Handle the error case appropriately (e.g., display an error message)
-    console.error(error);
-  }
-}
-
 //-------------CLEANUP DATA-------------------
 
 function capitaliseName(name) {
