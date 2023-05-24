@@ -7,6 +7,10 @@ html {
   background-image: url(./styleimages/stars1.gif);
 }
 
+.title-heading {
+  font-size: 25px;
+}
+
 body {
   font-family: myFont;
   font-size: 25px;
@@ -119,6 +123,10 @@ label {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
+}
+
+#studentInfoPopup-name {
+  color: white;
 }
 
 .popup {

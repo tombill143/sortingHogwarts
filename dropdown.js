@@ -123,7 +123,9 @@ fetch("hogwarts.json")
 
     // Capitalize names
     students.forEach((student) => {
-      student.fullname = capitaliseName(student.fullname);
+      student.firstname = capitaliseFirstName(student.fullname);
+      student.middlename = capitaliseMiddleName(student.fullname);
+      student.lastname = capitaliseLastName(student.fullname);
       // Capitalize house
       student.house = capitaliseHouse(student.house);
     });
@@ -193,11 +195,11 @@ function displayStudents() {
 
     const fullNameParts = student.fullname.trim().split(" ");
     const firstName = fullNameParts[0];
-    let middleName =
+    const middleName =
       fullNameParts.length > 2
         ? fullNameParts.slice(1, -1).join(" ").trim()
         : "-";
-    let lastName = fullNameParts[fullNameParts.length - 1].trim();
+    const lastName = fullNameParts[fullNameParts.length - 1].trim();
 
     const nickname =
       middleName.startsWith('"') && middleName.endsWith('"')
@@ -591,20 +593,28 @@ function showStudentInfoPopup(student) {
   const popupName = document.getElementById("studentInfoPopup-name");
   const popupDetails = document.getElementById("studentInfoPopup-details");
   const popupCloseButton = document.querySelector(".popupclose"); // Update the selector to target the close button
+  const fullNameParts = student.fullname.trim().split(" ");
+  const firstName = fullNameParts[0];
+  const middleName =
+    fullNameParts.length > 2
+      ? fullNameParts.slice(1, -1).join(" ").trim()
+      : "-";
+  const lastName = fullNameParts[fullNameParts.length - 1].trim();
 
   // Set the student's name and details in the popup
   popupName.textContent = student.fullname;
   popupDetails.innerHTML = `
-    First Name: ${student.firstname}<br>
-    Middle Name: ${student.middlename}<br>
-    Nick Name: ${student.nickname}<br>
-    Last Name: ${student.lastname}<br>
-    House: ${student.house}<br>
-    Blood Status: ${student.bloodStatus}<br>
-    Prefect: ${student.prefect ? "Yes" : "No"}<br>
-    Expelled: ${student.expelled ? "Yes" : "No"}<br>
-    Inquisitorial Squad: ${student.inquisitorialSquad ? "Yes" : "No"}
-  `;
+  First Name: ${firstName}<br>
+  Middle Name: ${middleName}<br>
+  Nick Name: ${student.nickname}<br>
+  Last Name: ${lastName}<br>
+  House: ${student.house}<br>
+  Blood Status: ${student.bloodStatus}<br>
+  Prefect: ${student.prefect ? "Yes" : "No"}<br>
+  Expelled: ${student.expelled ? "Yes" : "No"}<br>
+  Inquisitorial Squad: ${student.inquisitorialSquad ? "Yes" : "No"}
+`;
+  console.log("Middle Name Value:", student.middlename);
 
   // Apply house-specific styling to the popup
   studentInfoPopup.className = "popup"; // Remove any previous house-specific class
@@ -653,6 +663,53 @@ function capitaliseName(name) {
   return nameParts
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
+}
+
+function capitaliseFirstName(fullname) {
+  if (!fullname) {
+    return "";
+  }
+
+  const nameParts = fullname.split(" ").filter(Boolean);
+
+  if (nameParts.length === 0) {
+    return "";
+  }
+
+  const firstName = nameParts[0];
+
+  return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+}
+function capitaliseMiddleName(fullname) {
+  if (!fullname) {
+    return "-";
+  }
+
+  const nameParts = fullname.split(" ");
+
+  if (nameParts.length < 2) {
+    return "-";
+  }
+
+  const middleName = nameParts[1];
+
+  if (!middleName) {
+    return "-";
+  }
+
+  return middleName.charAt(0).toUpperCase() + middleName.slice(1).toLowerCase();
+}
+
+function capitaliseLastName(fullname) {
+  if (!fullname) {
+    return "";
+  }
+  const nameParts = fullname.split(" ");
+  if (nameParts.length < 2) {
+    return "";
+  }
+  const lastName = nameParts[nameParts.length - 1];
+  return lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
 }
 
 function capitaliseHouse(house) {
