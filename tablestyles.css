@@ -355,6 +355,11 @@ tbody td {
   border-radius: 50%;
 }
 
+.popupclose {
+  cursor: pointer;
+  float: right;
+}
+
 /* ****** STAR ****** */
 
 [data-field="star"] {
