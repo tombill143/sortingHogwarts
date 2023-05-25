@@ -326,22 +326,22 @@ tbody td {
 }
 
 /* Apply theme colors to the popup based on the house */
-.popup.gryffindor {
+.studentInfoPopup.gryffindor {
   background-color: #740001;
   color: #f0ba2b;
 }
 
-.popup.slytherin {
+.studentInfoPopup.slytherin {
   background-color: #1a472a;
   color: #aaaaaa;
 }
 
-.popup.hufflepuff {
+.studentInfoPopup.hufflepuff {
   background-color: #ffdb00;
   color: black;
 }
 
-.popup.ravenclaw {
+.studentInfoPopup.ravenclaw {
   background-color: #222f5b;
   color: #e4a548;
 }

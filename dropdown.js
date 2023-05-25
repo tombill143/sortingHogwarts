@@ -123,6 +123,7 @@ fetch("hogwarts.json")
 
     // Capitalize names
     students.forEach((student) => {
+      student.firstName = capitaliseName(student.fullname);
       student.firstname = capitaliseFirstName(student.fullname);
       student.middlename = capitaliseMiddleName(student.fullname);
       student.lastname = capitaliseLastName(student.fullname);
@@ -194,12 +195,12 @@ function displayStudents() {
     student.bloodStatus = getBloodStatusLabel();
 
     const fullNameParts = student.fullname.trim().split(" ");
-    const firstName = fullNameParts[0];
+    const firstName = capitaliseFirstName(student.fullname);
     const middleName =
       fullNameParts.length > 2
         ? fullNameParts.slice(1, -1).join(" ").trim()
         : "-";
-    const lastName = fullNameParts[fullNameParts.length - 1].trim();
+    const lastName = capitaliseLastName(student.fullname);
 
     const nickname =
       middleName.startsWith('"') && middleName.endsWith('"')
@@ -450,12 +451,12 @@ function displayFilteredStudents(filteredStudents) {
       let activeRow = document.createElement("tr");
 
       const fullNameParts = student.fullname.trim().split(" ");
-      const firstName = fullNameParts[0];
+      const firstName = capitaliseFirstName(student.fullname);
       let middleName =
-        fullNameParts.length > 2
-          ? fullNameParts.slice(1, -1).join(" ").trim()
+        fullNameParts.length > 1
+          ? capitaliseMiddleName(fullNameParts.slice(1, -1).join(" ").trim())
           : "-";
-      let lastName = fullNameParts[fullNameParts.length - 1].trim();
+      let lastName = capitaliseLastName(student.fullname);
 
       const nickname =
         middleName.startsWith('"') && middleName.endsWith('"')
@@ -515,7 +516,21 @@ function displayFilteredStudents(filteredStudents) {
 
       activeTableBody.appendChild(activeRow);
 
-      activeRow.addEventListener("click", () => {
+      activeRow.addEventListener("click", (event) => {
+        const target = event.target;
+        const isExpelButton =
+          target.classList.contains("expel-button") ||
+          target.closest(".expel-button");
+
+        if (isExpelButton) {
+          expelMessage(student);
+        } else {
+          showStudentInfoPopup(student);
+        }
+      });
+
+      const expelledButton = activeRow.querySelector(".expel-button");
+      expelledButton.addEventListener("click", (event) => {
         expelMessage(student);
       });
 
@@ -639,7 +654,7 @@ const dataCells = document.querySelectorAll(
   ".fullname, .nickname, .gender, .house, .bloodstatus"
 ); */
 
-dataCells.forEach(async (cell) => {
+/* dataCells.forEach(async (cell) => {
   cell.addEventListener("click", async (event) => {
     const row = event.target.closest("tr");
     const studentId = row.dataset.studentId;
@@ -652,25 +667,16 @@ dataCells.forEach(async (cell) => {
       console.error(error);
     }
   });
-});
+}); */
 //-------------CLEANUP DATA-------------------
 
-function capitaliseName(name) {
-  if (!name) {
-    return "";
-  }
-  const nameParts = name.split(" ");
-  return nameParts
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(" ");
-}
-
-function capitaliseFirstName(fullname) {
+function capitaliseName(fullname) {
+  /* console.log("Capitalizing name:", fullname); */
   if (!fullname) {
     return "";
   }
 
-  const nameParts = fullname.split(" ").filter(Boolean);
+  const nameParts = fullname.trim().split(" ").filter(Boolean);
 
   if (nameParts.length === 0) {
     return "";
@@ -678,8 +684,35 @@ function capitaliseFirstName(fullname) {
 
   const firstName = nameParts[0];
 
-  return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+  // Capitalize first letter of first name
+  let capitalizedFirstName = firstName.charAt(0).toUpperCase();
+  capitalizedFirstName += firstName.slice(1).toLowerCase();
+
+  // Handle the case of remaining letters
+  const remainingLetters = nameParts.slice(1).join(" ").toLowerCase();
+
+  return capitalizedFirstName + remainingLetters;
 }
+
+function capitaliseFirstName(fullname) {
+  if (!fullname) {
+    return "";
+  }
+
+  const nameParts = fullname.trim().split(" ").filter(Boolean);
+
+  if (nameParts.length === 0) {
+    return "";
+  }
+
+  const firstName = nameParts[0];
+
+  // Capitalize first letter of first name
+  const capitalizedFirstName =
+    firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+  return capitalizedFirstName;
+}
+
 function capitaliseMiddleName(fullname) {
   if (!fullname) {
     return "-";
@@ -704,14 +737,22 @@ function capitaliseLastName(fullname) {
   if (!fullname) {
     return "";
   }
+
   const nameParts = fullname.split(" ");
+
   if (nameParts.length < 2) {
     return "";
   }
-  const lastName = nameParts[nameParts.length - 1];
-  return lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
-}
 
+  const lastName = nameParts[nameParts.length - 1];
+
+  // Capitalize first letter of last name
+  const capitalizedLastName =
+    lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+
+  console.log("Capitalized last name:", capitalizedLastName);
+  return capitalizedLastName;
+}
 function capitaliseHouse(house) {
   const makeHouseUppercase = house.split(" ");
   return makeHouseUppercase
